@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id             String        @id @default(uuid())
+  name           String
+  domain         String?       @unique
+  logo_url       String?
+  status         CompanyStatus @default(active)
+  trial_ends     DateTime?
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  departments    Department[]
+  leave_policies LeavePolicy[]
+  users          User[]
+
+  @@map("companies")
+}
+
+model Department {
+  id         String   @id @default(uuid())
+  name       String
+  company_id String
+  manager_id String?
+  created_at DateTime @default(now())
+  company    Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  manager    User?    @relation("DepartmentManager", fields: [manager_id], references: [id])
+  employees  User[]   @relation("DepartmentEmployees")
+
+  @@map("departments")
+}
+
+model User {
+  id                 String          @id @default(uuid())
+  email              String          @unique
+  password_hash      String
+  first_name         String
+  last_name          String
+  phone              String?
+  avatar_url         String?
+  hire_date          DateTime?
+  birth_date         DateTime?
+  role               Role            @default(employee)
+  company_id         String?
+  department_id      String?
+  manager_id         String?
+  is_active          Boolean         @default(true)
+  last_login         DateTime?
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+  attendance_logs    AttendanceLog[]
+  managed_department Department[]    @relation("DepartmentManager")
+  leave_balances     LeaveBalance[]
+  approved_leaves    LeaveRequest[]  @relation("ApproverLeaves")
+  leave_requests     LeaveRequest[]  @relation("EmployeeLeaves")
+  refresh_tokens     RefreshToken[]
+  company            Company?        @relation(fields: [company_id], references: [id])
+  department         Department?     @relation("DepartmentEmployees", fields: [department_id], references: [id])
+  manager            User?           @relation("ManagerEmployee", fields: [manager_id], references: [id])
+  direct_reports     User[]          @relation("ManagerEmployee")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  token      String   @unique
+  user_id    String
+  expires_at DateTime
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model AttendanceLog {
+  id             String    @id @default(uuid())
+  user_id        String
+  date           DateTime  @db.Date
+  check_in       DateTime?
+  check_out      DateTime?
+  total_hours    Decimal?  @db.Decimal(4, 2)
+  overtime_hours Decimal?  @db.Decimal(4, 2)
+  is_late        Boolean   @default(false)
+  notes          String?
+  created_at     DateTime  @default(now())
+  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, date])
+  @@map("attendance_logs")
+}
+
+model LeavePolicy {
+  id            String    @id @default(uuid())
+  company_id    String
+  leave_type    LeaveType
+  days_per_year Int
+  carry_over    Boolean   @default(false)
+  max_carry     Int       @default(0)
+  company       Company   @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@unique([company_id, leave_type])
+  @@map("leave_policies")
+}
+
+model LeaveBalance {
+  id           String    @id @default(uuid())
+  user_id      String
+  leave_type   LeaveType
+  year         Int
+  total_days   Int
+  used_days    Int       @default(0)
+  pending_days Int       @default(0)
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, leave_type, year])
+  @@map("leave_balances")
+}
+
+model LeaveRequest {
+  id            String      @id @default(uuid())
+  employee_id   String
+  leave_type    LeaveType
+  start_date    DateTime    @db.Date
+  end_date      DateTime    @db.Date
+  days_count    Int
+  status        LeaveStatus @default(pending)
+  reason        String?
+  approved_by   String?
+  reject_reason String?
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+  approver      User?       @relation("ApproverLeaves", fields: [approved_by], references: [id])
+  employee      User        @relation("EmployeeLeaves", fields: [employee_id], references: [id])
+
+  @@map("leave_requests")
+}
+
+enum Role {
+  super_admin
+  company_admin
+  manager
+  employee
+}
+
+enum CompanyStatus {
+  active
+  suspended
+  trial
+}
+
+enum LeaveType {
+  annual
+  sick
+  emergency
+  maternity
+  unpaid
+}
+
+enum LeaveStatus {
+  pending
+  approved
+  rejected
+  cancelled
+}
