@@ -6,8 +6,6 @@ import authRoutes from "./routes/auth.routes.js";
 // Create an instance of the Express application
 const app = express();
 
-
-
 app.use(express.json());
 
 
