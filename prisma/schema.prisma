@@ -18,7 +18,7 @@ model Company {
   updated_at     DateTime      @updatedAt
   departments    Department[]
   leave_policies LeavePolicy[]
-  users          User[]
+  users          Users[]
 
   @@map("companies")
 }
@@ -30,13 +30,13 @@ model Department {
   manager_id String?
   created_at DateTime @default(now())
   company    Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
-  manager    User?    @relation("DepartmentManager", fields: [manager_id], references: [id])
-  employees  User[]   @relation("DepartmentEmployees")
+  manager    Users?    @relation("DepartmentManager", fields: [manager_id], references: [id])
+  employees  Users[]   @relation("DepartmentEmployees")
 
   @@map("departments")
 }
 
-model User {
+model Users {
   id                 String          @id @default(uuid())
   email              String          @unique
   password      String
@@ -62,8 +62,8 @@ model User {
   refresh_tokens     RefreshToken[]
   company            Company?        @relation(fields: [company_id], references: [id])
   department         Department?     @relation("DepartmentEmployees", fields: [department_id], references: [id])
-  manager            User?           @relation("ManagerEmployee", fields: [manager_id], references: [id])
-  direct_reports     User[]          @relation("ManagerEmployee")
+  manager            Users?           @relation("ManagerEmployee", fields: [manager_id], references: [id])
+  direct_reports     Users[]          @relation("ManagerEmployee")
 
   @@map("users")
 }
@@ -74,7 +74,7 @@ model RefreshToken {
   user_id    String
   expires_at DateTime
   created_at DateTime @default(now())
-  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user       Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
 }
@@ -90,7 +90,7 @@ model AttendanceLog {
   is_late        Boolean   @default(false)
   notes          String?
   created_at     DateTime  @default(now())
-  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user           Users      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, date])
   @@map("attendance_logs")
@@ -117,7 +117,7 @@ model LeaveBalance {
   total_days   Int
   used_days    Int       @default(0)
   pending_days Int       @default(0)
-  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user         Users      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, leave_type, year])
   @@map("leave_balances")
@@ -136,8 +136,8 @@ model LeaveRequest {
   reject_reason String?
   created_at    DateTime    @default(now())
   updated_at    DateTime    @updatedAt
-  approver      User?       @relation("ApproverLeaves", fields: [approved_by], references: [id])
-  employee      User        @relation("EmployeeLeaves", fields: [employee_id], references: [id])
+  approver      Users?       @relation("ApproverLeaves", fields: [approved_by], references: [id])
+  employee      Users        @relation("EmployeeLeaves", fields: [employee_id], references: [id])
 
   @@map("leave_requests")
 }

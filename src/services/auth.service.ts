@@ -16,7 +16,7 @@ export const loginService = async (email: string, password: string) => {
     // const user = await prisma.user.findUnique({ where: { email } });
 
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.users.findFirst({
         where: { email: email }
     });
 

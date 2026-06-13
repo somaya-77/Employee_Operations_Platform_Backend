@@ -7,14 +7,14 @@ const prisma = new PrismaClient();
 async function main() {
     // Create Super Admin user
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "super@empops.io";
-    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "SuperAdmin@2024!";
+    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "SuperAdmin@2026!";
 
     const hashedPassword = await bcrypt.hash(
         superAdminPassword,
         10
     );
 
-    await prisma.user.create({
+    await prisma.users.create({
         data: {
             email: superAdminEmail,
             password: hashedPassword,
