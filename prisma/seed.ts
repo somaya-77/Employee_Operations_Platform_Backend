@@ -10,20 +10,20 @@ async function main() {
     const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "SuperAdmin@2024!";
 
     const hashedPassword = await bcrypt.hash(
-  superAdminPassword,
-  10
-);
+        superAdminPassword,
+        10
+    );
 
     await prisma.user.create({
         data: {
             email: superAdminEmail,
-            password_hash: hashedPassword,
+            password: hashedPassword,
             first_name: "Super",
             last_name: "Admin",
             role: "super_admin"
         }
     });
-console.log("Super Admin user created successfully.");
+    console.log("Super Admin user created successfully.");
 }
 
 

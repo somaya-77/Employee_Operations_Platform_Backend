@@ -5,7 +5,7 @@ import prisma from "../lib/prisma.js";
 
 
 export const loginService = async (email: string, password: string) => {
-   console.log("DEBUG: Service called with email:", email);
+    console.log("DEBUG: Service called with email:", email);
     // Check email & password
     if (!email || !password) {
         throw new Error("Email and password are required");
@@ -20,7 +20,7 @@ export const loginService = async (email: string, password: string) => {
         where: { email: email }
     });
 
-   console.log("DEBUG: User found in DB:", !!user);
+    console.log("DEBUG: User found in DB:", !!user);
     // Check if user exists
     if (!user) {
         throw new Error("User not found");
@@ -28,7 +28,7 @@ export const loginService = async (email: string, password: string) => {
 
 
     // 2. Verify password
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
         throw new Error("Invalid email or password");
