@@ -50,9 +50,10 @@ export const createCompany = async (req: Request, res: Response) => {
 // ── GET /api/companies ────────────────────────────────
 export const listCompanies = async (req: Request, res: Response) => {
   try {
-    const { status } = req.query;
+    const rawStatus = req.query.status as string | string[] | undefined;
+    const status = Array.isArray(rawStatus) ? rawStatus[0] : rawStatus;
 
-    const companies = await listCompaniesService(status as string | undefined);
+    const companies = await listCompaniesService(status ?? undefined);
 
     return res.status(200).json({ data: companies });
   } catch (error) {
@@ -82,21 +83,28 @@ export const getStats = async (req: Request, res: Response) => {
 // ── PATCH /api/companies/:id/status ──────────────────
 export const toggleStatus = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const id = req.params.id as string | undefined;
+    if (!id) {
+      return res.status(400).json({ message: "company id is required" });
+    }
 
-    if (!["active", "suspended"].includes(status)) {
+    const rawStatus = req.body.status as string | string[] | undefined;
+    const statusVal = Array.isArray(rawStatus) ? rawStatus[0] : rawStatus;
+
+    if (statusVal !== "active" && statusVal !== "suspended") {
       return res.status(400).json({
         message: "status must be either active or suspended",
       });
     }
 
-    const company = await toggleCompanyStatusService(id, status);
+    const statusFinal = statusVal as "active" | "suspended";
 
-    console.log("toggleStatus:", company.name, "→", status);
+    const company = await toggleCompanyStatusService(id, statusFinal);
+
+    console.log("toggleStatus:", company.name, "→", statusFinal);
 
     return res.status(200).json({
-      message: `Successfully ${status === "active" ? "activated" : "suspended"} the company`,
+      message: `Successfully ${statusFinal === "active" ? "activated" : "suspended"} the company`,
       data: company,
     });
   } catch (error) {
