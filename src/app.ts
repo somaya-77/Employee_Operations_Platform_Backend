@@ -1,6 +1,7 @@
 
 import express from 'express';
 import authRoutes from "./routes/auth.routes.js";
+import companyRoutes from "./routes/company.routes.js";
 
 
 // Create an instance of the Express application
@@ -14,5 +15,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Auth routes
 app.use("/api/auth", authRoutes);
+// Company routes
+app.use("/api/companies", companyRoutes);
+
 export default app;
