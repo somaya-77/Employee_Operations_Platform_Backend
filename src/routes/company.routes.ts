@@ -13,8 +13,8 @@ const router = Router();
 // PATCH /api/companies/:id/status
 
 router.get("/stats", verifyToken, requireRole("super_admin"), getStats);
-router.get("/", verifyToken, requireRole("super_admin"), listCompanies);
 router.post("/", verifyToken, requireRole("super_admin"), createCompany);
+router.get("/", verifyToken, requireRole("super_admin"), listCompanies);
 router.patch("/:id/status", verifyToken, requireRole("super_admin"), toggleStatus);
 
 export default router;

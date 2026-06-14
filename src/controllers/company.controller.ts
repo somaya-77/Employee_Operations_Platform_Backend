@@ -9,6 +9,8 @@ import {
 
 // ── POST /api/companies ───────────────────────────────
 // Super Admin only
+
+// Create company + admin user in one request
 export const createCompany = async (req: Request, res: Response) => {
   try {
     const {
