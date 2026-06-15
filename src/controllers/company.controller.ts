@@ -33,7 +33,7 @@ export const createCompany = async (req: Request, res: Response) => {
       admin_password,
     });
 
-    console.log("createCompany: success →", result.company.name);
+    console.log("createCompany: success ", result.company.name);
 
     return res.status(201).json({
       message: "Successfully created company and admin user",
