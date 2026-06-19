@@ -1,4 +1,3 @@
-// src/controllers/company.controller.ts
 import { Request, Response } from "express";
 import {
   createCompanyService,
@@ -7,7 +6,7 @@ import {
   toggleCompanyStatusService,
 } from "../services/company.service.js";
 
-// ── POST /api/companies ───────────────────────────────
+// POST /api/companies 
 // Super Admin only
 
 // Create company + admin user in one request
@@ -33,8 +32,6 @@ export const createCompany = async (req: Request, res: Response) => {
       admin_password,
     });
 
-    console.log("createCompany: success ", result.company.name);
-
     return res.status(201).json({
       message: "Successfully created company and admin user",
       data: result,
@@ -47,7 +44,7 @@ export const createCompany = async (req: Request, res: Response) => {
   }
 };
 
-// ── GET /api/companies ────────────────────────────────
+// GET /api/companies 
 export const listCompanies = async (req: Request, res: Response) => {
   try {
     const rawStatus = req.query.status as string | string[] | undefined;
@@ -64,12 +61,12 @@ export const listCompanies = async (req: Request, res: Response) => {
   }
 };
 
-// ── GET /api/companies/stats ──────────────────────────
+//  GET /api/companies/stats 
 export const getStats = async (req: Request, res: Response) => {
   try {
-    console.log("getStats: called");
+    const searchQuery = req.query.search as string;
 
-    const stats = await getStatsService();
+    const stats = await getStatsService(searchQuery);
 
     return res.status(200).json({ data: stats });
   } catch (error) {
@@ -80,7 +77,7 @@ export const getStats = async (req: Request, res: Response) => {
   }
 };
 
-// ── PATCH /api/companies/:id/status ──────────────────
+//  PATCH /api/companies/:id/status 
 export const toggleStatus = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string | undefined;

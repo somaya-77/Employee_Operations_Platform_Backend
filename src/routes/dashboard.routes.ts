@@ -7,6 +7,7 @@ const router = Router();
 // GET /api/dashboard/activities
 // GET /api/dashboard/alerts
 router.get("/activities", verifyToken, requireRole("super_admin"), getActivities);
-router.get("/alerts",     verifyToken, requireRole("super_admin"), getAlerts);
+router.get("/alerts", verifyToken, requireRole("super_admin"), getAlerts);
 
 export default router;
+

@@ -1,8 +1,9 @@
 // src/services/company.service.ts
 import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
+import { Prisma } from "@prisma/client";
 
-// ── Types ─────────────────────────────────────────────
+// Types 
 export interface CreateCompanyInput {
   company_name: string;
   company_domain?: string;
@@ -12,7 +13,7 @@ export interface CreateCompanyInput {
   admin_password: string;
 }
 
-// ── createCompanyService ──────────────────────────────
+//  createCompanyService 
 // Super Admin only: creates company + company_admin account
 export const createCompanyService = async (input: CreateCompanyInput) => {
   const {
@@ -107,7 +108,7 @@ export const createCompanyService = async (input: CreateCompanyInput) => {
   };
 };
 
-// ── listCompaniesService ──────────────────────────────
+//  listCompaniesService 
 // Super Admin: get all companies with user counts
 export const listCompaniesService = async (status?: string) => {
   const companies = await prisma.company.findMany({
@@ -131,14 +132,19 @@ export const listCompaniesService = async (status?: string) => {
   }));
 };
 
-// ── getStatsService ───────────────────────────────────
+//  getStatsService 
 // Super Admin dashboard stats
-export const getStatsService = async () => {
+export const getStatsService = async (searchQuery?: string) => {
   const startOfMonth = new Date(
     new Date().getFullYear(),
     new Date().getMonth(),
     1
   );
+
+  // 
+  const companyFilter: Prisma.CompanyWhereInput = searchQuery 
+    ? { name: { contains: searchQuery, mode: 'insensitive' } } 
+    : {};
 
   // Run all DB queries in parallel
   const [
@@ -164,6 +170,7 @@ export const getStatsService = async () => {
       },
     }),
     prisma.company.findMany({
+      where: companyFilter,
       take: 5,
       orderBy: { created_at: "desc" },
       include: { _count: { select: { users: true } } },
@@ -192,7 +199,7 @@ export const getStatsService = async () => {
   };
 };
 
-// ── toggleCompanyStatusService ────────────────────────
+//  toggleCompanyStatusService 
 export const toggleCompanyStatusService = async (
   id: string,
   status: "active" | "suspended"
