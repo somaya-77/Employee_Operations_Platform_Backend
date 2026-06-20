@@ -1,6 +1,7 @@
 import prisma from "../lib/prisma.js";
 
 export const getAlertsService = async () => {
+    // 
     const [suspendedCompanies, inactiveUsers, pendingLeaves] = await Promise.all([
         prisma.company.findMany({
             where: { status: "suspended" },
@@ -19,6 +20,8 @@ export const getAlertsService = async () => {
             id: c.id,
             type: "error" as const,
             title: `Company suspended: ${c.name}`,
+            message: "This company's account has been suspended and cannot access the platform.",
+
             created_at: c.updated_at,
         })),
         ...inactiveUsers.map((u) => ({
@@ -26,6 +29,9 @@ export const getAlertsService = async () => {
             type: "warning" as const,
             title: `Inactive user: ${u.first_name} ${u.last_name}`,
             subtitle: u.company?.name ?? "",
+            message: u.company?.name
+                ? `This user from ${u.company.name} has been deactivated.`
+                : "This user has been deactivated.",
             created_at: u.updated_at,
         })),
         ...(pendingLeaves > 0
@@ -33,6 +39,8 @@ export const getAlertsService = async () => {
                 id: "pending-leaves",
                 type: "warning" as const,
                 title: `${pendingLeaves} leave request${pendingLeaves > 1 ? "s" : ""} pending approval`,
+                message: "These leave requests are awaiting review and approval.",
+
                 created_at: new Date(),
             }]
             : []),
