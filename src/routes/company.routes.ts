@@ -1,7 +1,7 @@
 
 import { Router } from "express";
 import { requireRole, verifyToken } from "../lib/auth.middleware.js";
-import { createCompany, deleteCompany, getStats, listCompanies, toggleStatus, updateCompany } from "../controllers/company.controller.js";
+import { createCompany, deleteCompany, getStats, listCompanies, showCompany, toggleStatus, updateCompany } from "../controllers/company.controller.js";
 
 
 const router = Router();
@@ -15,6 +15,7 @@ const router = Router();
 router.get("/stats", verifyToken, requireRole("super_admin"), getStats);
 router.post("/", verifyToken, requireRole("super_admin"), createCompany);
 router.put("/:id",verifyToken, requireRole("super_admin"), updateCompany);
+router.get("/:id",verifyToken, requireRole("super_admin"), showCompany);
 router.delete("/:id",verifyToken, requireRole("super_admin"), deleteCompany);
 router.get("/", verifyToken, requireRole("super_admin"), listCompanies);
 router.patch("/:id/status", verifyToken, requireRole("super_admin"), toggleStatus);

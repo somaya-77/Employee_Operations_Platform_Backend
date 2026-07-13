@@ -6,6 +6,7 @@ import {
   toggleCompanyStatusService,
   updateCompanyService,
   deleteCompanyService,
+  showCompanyById,
 } from "../services/company.service.js";
 
 // POST /api/companies 
@@ -40,6 +41,23 @@ export const createCompany = async (req: Request, res: Response) => {
     return res.status(400).json({ message: error instanceof Error ? error.message : "An error occurred" });
   }
 };
+
+// SHOW /api/companies/[id]
+export const showCompany = async (req: Request, res: Response) => {
+  try {
+    const rowId = req.params.id;
+    const id = Array.isArray(rowId) ? rowId[0] : rowId;
+    const company = await showCompanyById(id);
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    return res.status(200).json({ data: company });
+  } catch (error) {
+    return res.status(400).json({ message: error instanceof Error ? error.message : "An error occurred" });
+  }
+}
 
 // UPDATE /api/companies/:id
 export const updateCompany = async (req: Request, res: Response) => {

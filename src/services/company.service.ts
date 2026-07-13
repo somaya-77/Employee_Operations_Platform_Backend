@@ -1,4 +1,3 @@
-// src/services/company.service.ts
 import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
 import { Prisma } from "@prisma/client";
@@ -102,6 +101,13 @@ export const createCompanyService = async (input: CreateCompanyInput) => {
   };
 };
 
+// show company by id
+export const showCompanyById = async (id: string) => {
+  return await prisma.company.findUnique({
+    where: { id }
+  })
+}
+
 // Update company
 export const updateCompanyService = async (id: string, data: Partial<CreateCompanyInput>) => {
   return await prisma.company.update({
@@ -119,11 +125,6 @@ export const deleteCompanyService = async (id: string) => {
     where: { id },
   })
 }
-
-
-
-
-
 
 
 //  listCompaniesService 
