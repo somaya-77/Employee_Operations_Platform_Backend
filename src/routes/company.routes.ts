@@ -14,8 +14,8 @@ const router = Router();
 
 router.get("/stats", verifyToken, requireRole("super_admin"), getStats);
 router.post("/", verifyToken, requireRole("super_admin"), createCompany);
-router.put("/api/companies/:id",verifyToken, requireRole("super_admin"), updateCompany);
-router.delete("/api/companies/:id",verifyToken, requireRole("super_admin"), deleteCompany);
+router.put("/:id",verifyToken, requireRole("super_admin"), updateCompany);
+router.delete("/:id",verifyToken, requireRole("super_admin"), deleteCompany);
 router.get("/", verifyToken, requireRole("super_admin"), listCompanies);
 router.patch("/:id/status", verifyToken, requireRole("super_admin"), toggleStatus);
 
