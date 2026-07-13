@@ -1,17 +1,19 @@
 import { Request, Response } from "express";
 import {
+  getStatsService,
   createCompanyService,
   listCompaniesService,
-  getStatsService,
   toggleCompanyStatusService,
+  updateCompanyService,
+  deleteCompanyService,
 } from "../services/company.service.js";
 
 // POST /api/companies 
 // Super Admin only
-
 // Create company + admin user in one request
 export const createCompany = async (req: Request, res: Response) => {
   try {
+    // Company data
     const {
       company_name,
       company_domain,
@@ -21,8 +23,7 @@ export const createCompany = async (req: Request, res: Response) => {
       admin_password,
     } = req.body;
 
-    console.log("createCompany: called by", req.user?.role);
-
+    // Result
     const result = await createCompanyService({
       company_name,
       company_domain,
@@ -32,17 +33,37 @@ export const createCompany = async (req: Request, res: Response) => {
       admin_password,
     });
 
-    return res.status(201).json({
-      message: "Successfully created company and admin user",
-      data: result,
-    });
+    return res.status(201).json({ message: "Successfully created company and admin user", data: result });
+
   } catch (error) {
-    console.error("createCompany Error:", error);
-    return res.status(400).json({
-      message: error instanceof Error ? error.message : "An error occurred",
-    });
+
+    return res.status(400).json({ message: error instanceof Error ? error.message : "An error occurred" });
   }
 };
+
+// UPDATE /api/companies/:id
+export const updateCompany = async (req: Request, res: Response) => {
+  try {
+    const rowId = req.params.id;
+    const  id  = Array.isArray(rowId) ? rowId[0] : rowId;
+    const result = await updateCompanyService(id, req.body);
+    return res.status(200).json({ message: "Company updated successfully", data: result });
+  } catch (error: unknown) {
+    return res.status(400).json({ message: error });
+  }
+};
+// SOFT DELETE
+// DELETE /api/companies/:id
+export const deleteCompany = async (req: Request, res: Response) => {
+  try {
+     const rowId = req.params.id;
+    const  id  = Array.isArray(rowId) ? rowId[0] : rowId;
+    await deleteCompanyService(id);
+    return res.status(200).json({ message: "Company deleted successfully" })
+  } catch (error: unknown) {
+    return res.status(400).json({ message: error })
+  }
+}
 
 // GET /api/companies 
 export const listCompanies = async (req: Request, res: Response) => {

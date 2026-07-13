@@ -45,7 +45,7 @@ export const loginService = async (email: string, password: string) => {
         userId: user.id,
         role: user.role,
         companyId: user.company_id,
-    }, secret, { expiresIn: '7d' });
+    }, secret, { expiresIn: '30d' });
 
     // 4. Return token and user info (excluding password)
     return { token, user: { id: user.id, email: user.email, role: user.role, companyId: user.company_id } }

@@ -2,20 +2,12 @@
 import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
 import { Prisma } from "@prisma/client";
-
-// Types 
-export interface CreateCompanyInput {
-  company_name: string;
-  company_domain?: string;
-  admin_first_name: string;
-  admin_last_name: string;
-  admin_email: string;
-  admin_password: string;
-}
+import { CreateCompanyInput } from "../types/index.js";
 
 //  createCompanyService 
 // Super Admin only: creates company + company_admin account
 export const createCompanyService = async (input: CreateCompanyInput) => {
+  // Company Data
   const {
     company_name,
     company_domain,
@@ -34,6 +26,7 @@ export const createCompanyService = async (input: CreateCompanyInput) => {
   const existingUser = await prisma.users.findFirst({
     where: { email: admin_email.toLowerCase().trim() },
   });
+
   if (existingUser) {
     throw new Error("email is already in use");
   }
@@ -43,6 +36,7 @@ export const createCompanyService = async (input: CreateCompanyInput) => {
     const existingDomain = await prisma.company.findUnique({
       where: { domain: company_domain },
     });
+
     if (existingDomain) {
       throw new Error("this company domain is already taken");
     }
@@ -108,6 +102,33 @@ export const createCompanyService = async (input: CreateCompanyInput) => {
   };
 };
 
+// Update company
+export const updateCompanyService = async (id: string, data: Partial<CreateCompanyInput>) => {
+  return await prisma.company.update({
+    where: { id },
+    data: {
+      name: data.company_name,
+      domain: data.company_domain
+    }
+  })
+}
+
+// Delete company
+export const deleteCompanyService = async (id: string) => {
+  return await prisma.company.update({
+    where: { id },
+    data: {
+      status: "deleted",
+    }
+  })
+}
+
+
+
+
+
+
+
 //  listCompaniesService 
 // Super Admin: get all companies with user counts
 export const listCompaniesService = async (status?: string) => {
@@ -142,8 +163,8 @@ export const getStatsService = async (searchQuery?: string) => {
   );
 
   // 
-  const companyFilter: Prisma.CompanyWhereInput = searchQuery 
-    ? { name: { contains: searchQuery, mode: 'insensitive' } } 
+  const companyFilter: Prisma.CompanyWhereInput = searchQuery
+    ? { name: { contains: searchQuery, mode: 'insensitive' } }
     : {};
 
   // Run all DB queries in parallel

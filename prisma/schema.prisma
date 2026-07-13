@@ -153,6 +153,7 @@ enum CompanyStatus {
   active
   suspended
   trial
+  delete
 }
 
 enum LeaveType {
