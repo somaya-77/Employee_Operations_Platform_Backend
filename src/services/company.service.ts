@@ -115,11 +115,8 @@ export const updateCompanyService = async (id: string, data: Partial<CreateCompa
 
 // Delete company
 export const deleteCompanyService = async (id: string) => {
-  return await prisma.company.update({
+  return await prisma.company.delete({
     where: { id },
-    data: {
-      status: "deleted",
-    }
   })
 }
 

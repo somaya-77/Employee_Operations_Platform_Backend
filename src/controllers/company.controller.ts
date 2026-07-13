@@ -45,7 +45,7 @@ export const createCompany = async (req: Request, res: Response) => {
 export const updateCompany = async (req: Request, res: Response) => {
   try {
     const rowId = req.params.id;
-    const  id  = Array.isArray(rowId) ? rowId[0] : rowId;
+    const id = Array.isArray(rowId) ? rowId[0] : rowId;
     const result = await updateCompanyService(id, req.body);
     return res.status(200).json({ message: "Company updated successfully", data: result });
   } catch (error: unknown) {
@@ -56,8 +56,8 @@ export const updateCompany = async (req: Request, res: Response) => {
 // DELETE /api/companies/:id
 export const deleteCompany = async (req: Request, res: Response) => {
   try {
-     const rowId = req.params.id;
-    const  id  = Array.isArray(rowId) ? rowId[0] : rowId;
+    const rowId = req.params.id;
+    const id = Array.isArray(rowId) ? rowId[0] : rowId;
     await deleteCompanyService(id);
     return res.status(200).json({ message: "Company deleted successfully" })
   } catch (error: unknown) {
