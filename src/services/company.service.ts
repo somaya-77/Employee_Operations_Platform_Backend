@@ -104,7 +104,14 @@ export const createCompanyService = async (input: CreateCompanyInput) => {
 // show company by id
 export const showCompanyById = async (id: string) => {
   return await prisma.company.findUnique({
-    where: { id }
+    where: { id },
+    include: {
+      users: {
+        where: {
+          role: "company_admin"
+        }
+      }
+    }
   })
 }
 
