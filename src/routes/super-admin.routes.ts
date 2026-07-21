@@ -8,7 +8,7 @@ const router = Router();
 router.use(verifyToken, requireRole("super_admin"));
 
 // Statistics
-router.get("/Platform", getPlatformStats);
+router.get("/platform", getPlatformStats);
 
 // Subscriptions 
 router.get("/subscriptions", getSubscriptions);
