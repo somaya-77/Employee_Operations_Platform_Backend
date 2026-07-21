@@ -106,14 +106,10 @@ export const showCompanyById = async (id: string) => {
   return await prisma.company.findUnique({
     where: { id },
     include: {
-      users: {
-        where: {
-          role: "company_admin"
-        }
-      }
+      users: true
     }
   })
-}
+};
 
 // Update company
 export const updateCompanyService = async (id: string, data: Partial<CreateCompanyInput>) => {

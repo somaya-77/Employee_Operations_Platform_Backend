@@ -19,6 +19,7 @@ model Company {
   departments    Department[]
   leave_policies LeavePolicy[]
   users          Users[]
+  subscription   Subscription?
 
   @@map("companies")
 }
@@ -30,8 +31,8 @@ model Department {
   manager_id String?
   created_at DateTime @default(now())
   company    Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
-  manager    Users?    @relation("DepartmentManager", fields: [manager_id], references: [id])
-  employees  Users[]   @relation("DepartmentEmployees")
+  manager    Users?   @relation("DepartmentManager", fields: [manager_id], references: [id])
+  employees  Users[]  @relation("DepartmentEmployees")
 
   @@map("departments")
 }
@@ -39,7 +40,7 @@ model Department {
 model Users {
   id                 String          @id @default(uuid())
   email              String          @unique
-  password      String
+  password           String
   first_name         String
   last_name          String
   phone              String?
@@ -62,8 +63,9 @@ model Users {
   refresh_tokens     RefreshToken[]
   company            Company?        @relation(fields: [company_id], references: [id])
   department         Department?     @relation("DepartmentEmployees", fields: [department_id], references: [id])
-  manager            Users?           @relation("ManagerEmployee", fields: [manager_id], references: [id])
-  direct_reports     Users[]          @relation("ManagerEmployee")
+  manager            Users?          @relation("ManagerEmployee", fields: [manager_id], references: [id])
+  direct_reports     Users[]         @relation("ManagerEmployee")
+  notifications      Notification[]
 
   @@map("users")
 }
@@ -74,7 +76,7 @@ model RefreshToken {
   user_id    String
   expires_at DateTime
   created_at DateTime @default(now())
-  user       Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user       Users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
 }
@@ -90,7 +92,7 @@ model AttendanceLog {
   is_late        Boolean   @default(false)
   notes          String?
   created_at     DateTime  @default(now())
-  user           Users      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user           Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, date])
   @@map("attendance_logs")
@@ -117,7 +119,7 @@ model LeaveBalance {
   total_days   Int
   used_days    Int       @default(0)
   pending_days Int       @default(0)
-  user         Users      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user         Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, leave_type, year])
   @@map("leave_balances")
@@ -136,12 +138,61 @@ model LeaveRequest {
   reject_reason String?
   created_at    DateTime    @default(now())
   updated_at    DateTime    @updatedAt
-  approver      Users?       @relation("ApproverLeaves", fields: [approved_by], references: [id])
-  employee      Users        @relation("EmployeeLeaves", fields: [employee_id], references: [id])
+  approver      Users?      @relation("ApproverLeaves", fields: [approved_by], references: [id])
+  employee      Users       @relation("EmployeeLeaves", fields: [employee_id], references: [id])
 
   @@map("leave_requests")
 }
 
+// SUBSCRIPTION
+model Subscription {
+  id            String             @id @default(uuid())
+  company_id    String             @unique
+  plan          SubscriptionPlan   @default(basic)
+  status        SubscriptionStatus @default(active)
+  price_monthly Float              @default(0.0)
+  started_at    DateTime           @default(now())
+  expires_at    DateTime?
+  max_users     Int                @default(10)
+  created_at    DateTime           @default(now())
+  updated_at    DateTime           @updatedAt
+  company       Company            @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+// NOTIFICATION
+model Notification {
+  id          String              @id @default(uuid())
+  title       String
+  message     String
+  type        NotificationType    @default(info)
+  channel     NotificationChannel @default(in_app)
+  target_role String? // null = all roles
+  company_id  String? // null = all companies
+  is_read     Boolean             @default(false)
+  sent_at     DateTime?
+  created_at  DateTime            @default(now())
+  users       Users?              @relation(fields: [usersId], references: [id])
+  usersId     String?
+
+  @@map("notifications")
+}
+
+// PLATFORM SETTINGS
+model PlatformSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  updated_at  DateTime @updatedAt
+
+  @@map("platform_settings")
+}
+
+///////////////////////////////////////////////////////////
+
+// Enums
 enum Role {
   super_admin
   company_admin
@@ -169,4 +220,34 @@ enum LeaveStatus {
   approved
   rejected
   cancelled
+}
+
+// Subscription Plans
+enum SubscriptionPlan {
+  basic
+  premium
+  enterprise
+}
+
+// Subscription Status
+enum SubscriptionStatus {
+  active
+  expired
+  cancelled
+  trial
+}
+
+// Notification Types
+enum NotificationType {
+  info
+  warning
+  error
+  success
+}
+
+// Notification Channels
+enum NotificationChannel {
+  in_app
+  email
+  both
 }

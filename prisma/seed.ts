@@ -22,8 +22,6 @@ async function main() {
             role: "super_admin"
         }
     });
-    console.log("Super Admin user created successfully.");
-
 
     // 2. Companies (active, suspended, trial) 
     const activeCompany = await prisma.company.create({
@@ -135,8 +133,6 @@ async function main() {
             },
         ],
     });
-
-    console.log("Inactive users created for alerts");
 
     // 7. Pending leave requests => triggers warning alert
 
