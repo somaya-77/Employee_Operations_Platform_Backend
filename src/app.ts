@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.routes.js";
 import companyRoutes from "./routes/company.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import superAdminRoutes from "./routes/super-admin.routes.js"
+import companyAdminRoutes from "./routes/company-admin/company-admin.routes.js"
 
 
 // Create an instance of the Express application
@@ -22,5 +23,8 @@ app.use("/api/dashboard", dashboardRoutes);
 
 // Super-admin routes
 app.use("/api/super-admin", superAdminRoutes);
+
+// Super-admin routes
+app.use("/api/company-admin", companyAdminRoutes);
 
 export default app;
