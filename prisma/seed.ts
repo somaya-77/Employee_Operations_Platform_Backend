@@ -40,8 +40,6 @@ async function main() {
         data: { name: "Hooli", domain: "hooli.com", status: "trial" },
     });
 
-    console.log("Companies created (1 active, 2 suspended, 1 trial).");
-
     //  3. Company admin for active company
     const adminPassword = await bcrypt.hash("Admin@2026!", 10);
 

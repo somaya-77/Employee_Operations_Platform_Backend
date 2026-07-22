@@ -2,6 +2,7 @@
 
 //  DATE CONSTANTS
 export const now = new Date();
+export const today        = new Date(); today.setHours(0,0,0,0)
 export const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 export const lastOfMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 export const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
