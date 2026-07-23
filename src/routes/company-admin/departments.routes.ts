@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { requireRole, verifyToken } from "../../lib/auth.middleware.js";
-import { createDepartment, deleteDepartment, getDepartmentById, getDepartments, getOrgChart, updateDepartment } from "../../controllers/company-admin/department.service.js";
+import { createDepartment, deleteDepartment, getDepartmentById, getDepartments, getOrgChart, updateDepartment } from "../../controllers/company-admin/department.controller.js";
 
 
 

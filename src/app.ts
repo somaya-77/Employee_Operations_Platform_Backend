@@ -4,8 +4,9 @@ import authRoutes from "./routes/auth.routes.js";
 import companyRoutes from "./routes/company.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import superAdminRoutes from "./routes/super-admin.routes.js"
-import employeeRoutes from "./routes/company-admin/employees.js"
-import departmentRoutes from "./routes/company-admin/departments.js"
+import employeeRoutes from "./routes/company-admin/employees.routes.js"
+import departmentRoutes from "./routes/company-admin/departments.routes.js"
+import accountRoutes from "./routes/company-admin/account.routes.js"
 
 
 // Create an instance of the Express application
@@ -25,10 +26,15 @@ app.use("/api/dashboard", dashboardRoutes);
 // Super-admin routes
 app.use("/api/super-admin", superAdminRoutes);
 
-// Super-admin routes - employees
+
+////////////////////////////  Company admin
+// Company-admin routes - employees
 app.use("/api/company-admin/employees", employeeRoutes);
 
-// Super-admin routes - departments
+// Company-admin routes - departments
 app.use("/api/company-admin/department", departmentRoutes);
+
+// Company-admin routes - departments
+app.use("/api/company-admin/account", accountRoutes);
 
 export default app;
