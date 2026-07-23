@@ -4,9 +4,8 @@ import {
     getCompanyDashboardService,
     getEmployeesService, getEmployeeByIdService, createEmployeeService,
     updateEmployeeService, deleteEmployeeService,
-    getDepartmentsService, getDepartmentWithEmployeesService,
-    createDepartmentService, updateDepartmentService, deleteDepartmentService,
-} from "../../services/company-admin/company-admin.service.js"
+    assignEmployeeToDeptService,
+} from "../../services/company-admin/employees.service.js"
 
 const cid = (req: Request) => req.user!.companyId as string
 
@@ -87,60 +86,17 @@ export const deleteEmployee = async (req: Request, res: Response) => {
     }
 }
 
-//  DEPARTMENTS 
-export const getDepartments = async (req: Request, res: Response) => {
-    try {
-        const data = await getDepartmentsService(cid(req))
-        return res.status(200).json({ data })
-    } catch (error) {
-        console.error("getDepartments Error:", error)
-        return res.status(500).json({ message: error instanceof Error ? error.message : "An error occurred" })
-    }
-}
-
-export const getDepartmentById = async (req: Request, res: Response) => {
+// PATCH /api/departments/:id/assign/:userId
+export const assignEmployee = async (req: Request, res: Response) => {
     try {
         const rowId = req.params.id;
         const id = Array.isArray(rowId) ? rowId[0] : rowId;
-        const data = await getDepartmentWithEmployeesService(cid(req), id)
-        return res.status(200).json({ data })
+        const rowUserId = req.params.id;
+        const userId = Array.isArray(rowUserId) ? rowUserId[0] : rowUserId;
+
+        const data = await assignEmployeeToDeptService(cid(req), id, userId)
+        return res.status(200).json({ message: "successfully", data })
     } catch (error) {
-        console.error("getDepartmentById Error:", error)
-        return res.status(404).json({ message: error instanceof Error ? error.message : "An error occurred" })
+        return res.status(400).json({ message: error instanceof Error ? error.message : "Something went wrong" })
     }
 }
-
-export const createDepartment = async (req: Request, res: Response) => {
-    try {
-        const data = await createDepartmentService(cid(req), req.body)
-        return res.status(201).json({ message: "Department created successfully", data })
-    } catch (error) {
-        console.error("createDepartment Error:", error)
-        return res.status(400).json({ message: error instanceof Error ? error.message : "An error occurred" })
-    }
-}
-
-export const updateDepartment = async (req: Request, res: Response) => {
-    try {
-        const rowId = req.params.id;
-        const id = Array.isArray(rowId) ? rowId[0] : rowId;
-        const data = await updateDepartmentService(cid(req), id, req.body)
-        return res.status(200).json({ message: "Department updated successfully", data })
-    } catch (error) {
-        console.error("updateDepartment Error:", error)
-        return res.status(400).json({ message: error instanceof Error ? error.message : "An error occurred" })
-    }
-}
-
-export const deleteDepartment = async (req: Request, res: Response) => {
-    try {
-        const rowId = req.params.id;
-        const id = Array.isArray(rowId) ? rowId[0] : rowId;
-        await deleteDepartmentService(cid(req), id)
-        return res.status(200).json({ message: "Department deleted successfully" })
-    } catch (error) {
-        console.error("deleteDepartment Error:", error)
-        return res.status(400).json({ message: error instanceof Error ? error.message : "An error occurred" })
-    }
-}
-

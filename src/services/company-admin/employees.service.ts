@@ -154,59 +154,23 @@ export const deleteEmployeeService = async (companyId: string, userId: string) =
     return prisma.users.update({ where: { id: userId }, data: { is_active: false } })
 }
 
-// 3. DEPARTMENTS
-export const getDepartmentsService = async (companyId: string) => {
-    const departments = await prisma.department.findMany({
-        where: { company_id: companyId }, orderBy: { name: "asc" },
-        include: {
-            manager: { select: { id: true, first_name: true, last_name: true } },
-            _count: { select: { employees: true } },
-        },
-    })
-    return departments.map((d) => ({
-        id: d.id, name: d.name, manager: d.manager,
-        employee_count: d._count.employees, created_at: d.created_at,
-    }))
-}
+//  Assign employee to department 
+export const assignEmployeeToDeptService = async (
+    companyId: string,
+    deptId: string,
+    userId: string
+) => {
+    const [dept, user] = await Promise.all([
+        prisma.department.findFirst({ where: { id: deptId, company_id: companyId } }),
+        prisma.users.findFirst({ where: { id: userId, company_id: companyId } }),
+    ])
+    if (!dept) throw new Error("The section not found")
+    if (!user) throw new Error("The employee not found")
 
-export const getDepartmentWithEmployeesService = async (companyId: string, deptId: string) => {
-    const dept = await prisma.department.findFirst({
-        where: { id: deptId, company_id: companyId },
-        include: {
-            manager: { select: { id: true, first_name: true, last_name: true } },
-            employees: { select: { id: true, first_name: true, last_name: true, email: true, role: true, is_active: true, avatar_url: true } },
-        },
-    })
-    if (!dept) throw new Error("Department not found")
-    return dept
-}
-
-export const createDepartmentService = async (companyId: string, data: { name: string; manager_id?: string }) => {
-    if (!data.name) throw new Error("Department name is required")
-    if (data.manager_id) {
-        const mgr = await prisma.users.findFirst({ where: { id: data.manager_id, company_id: companyId } })
-        if (!mgr) throw new Error("Manager not found in this company")
-    }
-    return prisma.department.create({
-        data: { name: data.name, company_id: companyId, manager_id: data.manager_id ?? null },
-        include: { manager: { select: { first_name: true, last_name: true } } },
+    return prisma.users.update({
+        where: { id: userId },
+        data: { department_id: deptId },
+        select: { id: true, first_name: true, last_name: true, department_id: true },
     })
 }
 
-export const updateDepartmentService = async (companyId: string, deptId: string, data: { name?: string; manager_id?: string }) => {
-    const dept = await prisma.department.findFirst({ where: { id: deptId, company_id: companyId } })
-    if (!dept) throw new Error("Department not found")
-    return prisma.department.update({
-        where: { id: deptId }, data,
-        include: { manager: { select: { first_name: true, last_name: true } }, _count: { select: { employees: true } } },
-    })
-}
-
-export const deleteDepartmentService = async (companyId: string, deptId: string) => {
-    const dept = await prisma.department.findFirst({ where: { id: deptId, company_id: companyId } })
-    if (!dept) throw new Error("Department not found")
-    const empCount = await prisma.users.count({ where: { department_id: deptId } })
-    if (empCount > 0) throw new Error("Cannot delete a department that contains employees")
-    await prisma.department.delete({ where: { id: deptId } })
-    return { deleted: true }
-}
